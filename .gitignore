@@ -45,6 +45,7 @@ app.*.map.json
 /android/app/release
 
 # Environment secrets (Supabase keys, Google API keys, AdMob IDs)
+# Loaded via --dart-define-from-file=env.json. Template: env.example.json
+env.json
 .env
 .env.*
-!.env.example
