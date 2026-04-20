@@ -89,17 +89,26 @@ create table public.halal_reports (
 
 -- Auto-fill demographic snapshot from profile when review is inserted
 create or replace function public.fill_review_snapshot()
-returns trigger language plpgsql security definer as $$
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $fn$
+declare
+  p public.profiles%rowtype;
 begin
-  if new.snap_country is null or new.snap_occupation is null or new.snap_gender is null then
-    select country_code, occupation, gender, age_bucket
-      into new.snap_country, new.snap_occupation, new.snap_gender, new.snap_age_bucket
-      from public.profiles
-     where id = new.user_id;
+  if new.snap_country is null
+     or new.snap_occupation is null
+     or new.snap_gender is null then
+    select * into p from public.profiles where id = new.user_id;
+    new.snap_country    := coalesce(new.snap_country,    p.country_code);
+    new.snap_occupation := coalesce(new.snap_occupation, p.occupation);
+    new.snap_gender     := coalesce(new.snap_gender,     p.gender);
+    new.snap_age_bucket := coalesce(new.snap_age_bucket, p.age_bucket);
   end if;
   return new;
 end;
-$$;
+$fn$;
 
 create trigger reviews_fill_snapshot
   before insert on public.reviews
@@ -108,12 +117,14 @@ create trigger reviews_fill_snapshot
 
 -- Keep profiles.updated_at fresh
 create or replace function public.set_updated_at()
-returns trigger language plpgsql as $$
+returns trigger
+language plpgsql
+as $fn$
 begin
-  new.updated_at = now();
+  new.updated_at := now();
   return new;
 end;
-$$;
+$fn$;
 
 create trigger profiles_updated_at
   before update on public.profiles
