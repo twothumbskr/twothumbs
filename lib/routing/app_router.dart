@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
+import '../screens/restaurant_detail/restaurant_detail_screen.dart';
+import '../screens/review/review_write_screen.dart';
 import '../services/auth_service.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -26,6 +28,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/',           builder: (_, _) => const HomeScreen()),
       GoRoute(path: '/auth',       builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/onboarding', builder: (_, _) => const OnboardingScreen()),
+      GoRoute(
+        path: '/restaurant/:id',
+        builder: (_, s) =>
+            RestaurantDetailScreen(id: s.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/restaurant/:id/review',
+        builder: (_, s) =>
+            ReviewWriteScreen(restaurantId: s.pathParameters['id']!),
+      ),
     ],
   );
 });
