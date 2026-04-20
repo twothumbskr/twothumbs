@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TwoThumbs Icon Generator</title>
+<style>
+  body { font-family: system-ui, sans-serif; padding: 32px; text-align: center; background: #f5f5f5; }
+  h1 { margin-bottom: 8px; }
+  .hint { color: #666; margin-bottom: 24px; }
+  canvas { border: 2px solid #ddd; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); background: white; }
+  .controls { margin: 24px 0; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; align-items: center; }
+  button { padding: 10px 20px; font-size: 15px; border: 0; border-radius: 8px; cursor: pointer; background: #1976D2; color: white; font-weight: 600; }
+  button:hover { background: #125a9c; }
+  label { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
+  input[type="color"] { width: 40px; height: 32px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; }
+  input[type="range"] { width: 160px; }
+</style>
+</head>
+<body>
+  <h1>TwoThumbs Icon</h1>
+  <p class="hint">Tune the design, then click <b>Download PNG</b>. Save as <code>assets/icon/app_icon.png</code> under the project root.</p>
+
+  <canvas id="c" width="1024" height="1024" style="width: 320px; height: 320px;"></canvas>
+
+  <div class="controls">
+    <label>BG <input type="color" id="bg" value="#FFC107"></label>
+    <label>Size <input type="range" id="size" min="150" max="320" value="230"></label>
+    <label>Gap <input type="range" id="gap" min="-40" max="40" value="0"></label>
+  </div>
+  <div class="controls">
+    <button onclick="download()">Download PNG</button>
+  </div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+function render() {
+  const bg = document.getElementById('bg').value;
+  const size = +document.getElementById('size').value;
+  const gap = +document.getElementById('gap').value;
+
+  // Rounded square background
+  ctx.clearRect(0, 0, 1024, 1024);
+  ctx.fillStyle = bg;
+  const r = 180;
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(1024 - r, 0);
+  ctx.quadraticCurveTo(1024, 0, 1024, r);
+  ctx.lineTo(1024, 1024 - r);
+  ctx.quadraticCurveTo(1024, 1024, 1024 - r, 1024);
+  ctx.lineTo(r, 1024);
+  ctx.quadraticCurveTo(0, 1024, 0, 1024 - r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  // Emojis: 👍 👅 👍
+  ctx.font = `${size}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  const cx = 512, cy = 512;
+  const step = size * 0.9 + gap;
+  ctx.fillText('👍', cx - step, cy);
+  ctx.fillText('👅', cx, cy);
+  ctx.fillText('👍', cx + step, cy);
+}
+
+document.getElementById('bg').oninput = render;
+document.getElementById('size').oninput = render;
+document.getElementById('gap').oninput = render;
+render();
+
+function download() {
+  canvas.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'app_icon.png';
+    a.click();
+  }, 'image/png');
+}
+</script>
+</body>
+</html>
