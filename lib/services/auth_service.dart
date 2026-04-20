@@ -2,6 +2,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'supabase_service.dart';
 
 class AuthService {
+  static const oauthRedirect = 'com.talkverselab.twothumbs://login-callback';
+
   static SupabaseClient get _client => SupabaseService.client;
 
   static User? get currentUser => _client.auth.currentUser;
@@ -14,6 +16,14 @@ class AuthService {
 
   static Future<AuthResponse> signIn(String email, String password) {
     return _client.auth.signInWithPassword(email: email, password: password);
+  }
+
+  static Future<bool> signInWithGoogle() {
+    return _client.auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: oauthRedirect,
+      authScreenLaunchMode: LaunchMode.externalApplication,
+    );
   }
 
   static Future<void> signOut() => _client.auth.signOut();

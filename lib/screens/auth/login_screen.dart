@@ -26,7 +26,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _submit() async {
+  Future<void> _routeAfterAuth() async {
+    if (!mounted) return;
+    final profile = await ProfileService.fetchCurrent();
+    if (!mounted) return;
+    context.go(profile == null ? '/onboarding' : '/');
+  }
+
+  Future<void> _submitEmail() async {
     setState(() { _busy = true; _error = null; });
     try {
       if (_isSignUp) {
@@ -34,10 +41,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       } else {
         await AuthService.signIn(_emailCtrl.text.trim(), _pwCtrl.text);
       }
-      if (!mounted) return;
-      final profile = await ProfileService.fetchCurrent();
-      if (!mounted) return;
-      context.go(profile == null ? '/onboarding' : '/');
+      await _routeAfterAuth();
+    } catch (e) {
+      setState(() { _error = e.toString(); });
+    } finally {
+      if (mounted) setState(() { _busy = false; });
+    }
+  }
+
+  Future<void> _submitGoogle() async {
+    setState(() { _busy = true; _error = null; });
+    try {
+      await AuthService.signInWithGoogle();
+      // Deep-link callback resolves the session; authStateProvider will
+      // trigger router redirect. We still call _routeAfterAuth in case
+      // the session is already active on return.
+      await Future.delayed(const Duration(seconds: 1));
+      if (AuthService.currentSession != null) {
+        await _routeAfterAuth();
+      }
     } catch (e) {
       setState(() { _error = e.toString(); });
     } finally {
@@ -62,6 +84,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               const Text('Korean Food Guide',
                   style: TextStyle(color: Colors.grey)),
               const SizedBox(height: 32),
+
+              OutlinedButton.icon(
+                onPressed: _busy ? null : _submitGoogle,
+                icon: const Text('G', style: TextStyle(
+                    fontWeight: FontWeight.w900, fontSize: 18)),
+                label: const Text('Continue with Google'),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                ),
+              ),
+              const SizedBox(height: 24),
+              const Row(children: [
+                Expanded(child: Divider()),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  child: Text('or', style: TextStyle(color: Colors.grey)),
+                ),
+                Expanded(child: Divider()),
+              ]),
+              const SizedBox(height: 16),
+
               TextField(
                 controller: _emailCtrl,
                 keyboardType: TextInputType.emailAddress,
@@ -86,7 +129,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ],
               const SizedBox(height: 20),
               FilledButton(
-                onPressed: _busy ? null : _submit,
+                onPressed: _busy ? null : _submitEmail,
                 child: _busy
                     ? const SizedBox(
                         width: 20, height: 20,
