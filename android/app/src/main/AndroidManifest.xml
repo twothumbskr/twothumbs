@@ -45,6 +45,13 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713"/>
+        <!-- Google Maps API key.
+             Replace YOUR_GOOGLE_MAPS_API_KEY with a key that has
+             "Maps SDK for Android" enabled, restricted to this package
+             (com.talkverselab.twothumbs) + SHA-1 fingerprint. -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="YOUR_GOOGLE_MAPS_API_KEY"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import GoogleMaps
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
@@ -7,6 +8,9 @@ import UIKit
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    // Replace YOUR_GOOGLE_MAPS_API_KEY with an iOS-restricted key
+    // (Maps SDK for iOS enabled, restricted to bundle com.talkverselab.twothumbs).
+    GMSServices.provideAPIKey("YOUR_GOOGLE_MAPS_API_KEY")
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
